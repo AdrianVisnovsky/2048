@@ -36,7 +36,7 @@ namespace Game2048 {
 
 		void InitColors() const;
 
-		MenuOption Menu() const;
+		MenuOption Menu();
 
 		/// <summary>
 		/// Prints board on screen
@@ -63,6 +63,8 @@ namespace Game2048 {
 		bool IsRowSuitable(const int8_t rowIndex) const;
 
 		bool IsGameWon() const;
+
+		std::vector<uint32_t> GetHighScoresFromFile();
 
 	private:
 
@@ -108,7 +110,7 @@ namespace Game2048 {
 		void PrintLogo() const;
 		void PrintTile(const uint8_t row, const uint8_t col, const uint16_t value) const;
 
-		MenuOption MenuWindow() const;
+		MenuOption MenuWindow();
 
 	public:
 

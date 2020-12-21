@@ -9,9 +9,13 @@ int main(const int argc, const char ** argv) {
 
 	setlocale(LC_ALL, "");
 
-	Game2048::Game game;
 
-	bool loop = true;
+	Game2048::Game game;
+	auto test = game.GetHighScoresFromFile();
+
+	getch();
+
+	/*bool loop = true;
 	while( loop ) {
 
 		Game2048::MenuOption menuOption = game.Menu();
@@ -31,7 +35,7 @@ int main(const int argc, const char ** argv) {
 				break;
 		}
 
-	}
+	}*/
 
 	return EXIT_SUCCESS;
 }

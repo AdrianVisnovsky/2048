@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2020 Adrián Kokuľa - adriankokula.eu; License: The MIT License (MIT)
 
 #include <ctime>
+#include <fstream>
 
 #include "Game.h"
 
@@ -55,7 +56,7 @@ namespace Game2048 {
 
 	}
 
-	MenuOption Game::Menu() const {
+	MenuOption Game::Menu() {
 
 		ClearScreen();
 		PrintLogo();
@@ -88,7 +89,7 @@ namespace Game2048 {
 
 	}
 
-	MenuOption Game::MenuWindow() const {
+	MenuOption Game::MenuWindow() {
 
 		int cols, rows;
 		getmaxyx(stdscr, rows, cols);
@@ -187,11 +188,15 @@ namespace Game2048 {
 
 	void Game::PrintGame() const {
 
+		attron(COLOR_PAIR(1));
+		mvprintw(2, 5, "Score: %d", Score);
+		attroff(COLOR_PAIR(1));
+
 		for( int8_t i = 0; i < BoardSize; i++ ) {
 			for( int8_t j = 0; j < BoardSize; j++ ) {
 
-				uint8_t row = 2 + (i * 5);
-				uint8_t col = 2 + j * 10;
+				uint8_t row = 4 + (i * 5);
+				uint8_t col = 5 + j * 10;
 
 				PrintTile(row, col, Board[i][j]);
 			}
@@ -250,8 +255,8 @@ namespace Game2048 {
 
 				} else {
 
-					for( int8_t col = BoardSize - 1; col >= 0; col-- ) {
-						for( int8_t row = 0; row < BoardSize; row++ ) {
+					for( int8_t col = 0; col < BoardSize; col++ ) {
+						for( int8_t row = BoardSize - 1; row >= 0; row-- ) {
 
 							if( Board[row][col] != 0 ) continue;
 
@@ -441,6 +446,27 @@ namespace Game2048 {
 			}
 		}
 
+	}
+
+	std::vector<uint32_t> Game::GetHighScoresFromFile() {
+
+		std::ifstream highScoreFile;
+		highScoreFile.open(HighScoreFile);
+
+		if( !highScoreFile.is_open() ) return {};
+
+		int lineNum = 2;
+
+		std::string line;
+		while( std::getline(highScoreFile, line) ) {
+
+			mvprintw(lineNum, 3, "%s", line.c_str());
+			lineNum++;
+		}
+
+		highScoreFile.close();
+
+		return {};
 	}
 
 }
