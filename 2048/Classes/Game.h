@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <vector>
 #include <string>
+#include <ctime>
 
 #include <ncurses.h>
 
@@ -43,6 +44,8 @@ namespace Game2048 {
 		/// </summary>
 		void PrintGame() const;
 
+		void PrintHighScore();
+
 		/// <summary>
 		/// Adds random tile to game board
 		/// </summary>
@@ -65,6 +68,8 @@ namespace Game2048 {
 		bool IsGameWon() const;
 
 		std::vector<uint32_t> GetHighScoresFromFile();
+
+		bool WriteHighScoreToFile(const std::vector<uint32_t> highScores);
 
 	private:
 
@@ -106,6 +111,7 @@ namespace Game2048 {
 		const std::string PlayerGuide = "Guide: ↑, →, ↓, ←, q - quit, r, n - new game / restart game";
 		const std::string CopyrightInfo = "Copyright (c) 2020 Adrián Kokuľa - adriankokula.eu; License: The MIT License (MIT)";
 		const std::string HighScoreFile = "score.txt";
+		const std::string HighScoreHeader = "High score table";
 
 		void PrintLogo() const;
 		void PrintTile(const uint8_t row, const uint8_t col, const uint16_t value) const;

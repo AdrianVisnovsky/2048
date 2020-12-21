@@ -1,9 +1,8 @@
 ﻿// Copyright (c) 2020 Adrián Kokuľa - adriankokula.eu; License: The MIT License (MIT)
 
-#include <ctime>
-#include <fstream>
-
 #include "Game.h"
+
+#include <fstream>
 
 namespace Game2048 {
 
@@ -450,23 +449,127 @@ namespace Game2048 {
 
 	std::vector<uint32_t> Game::GetHighScoresFromFile() {
 
-		std::ifstream highScoreFile;
-		highScoreFile.open(HighScoreFile);
+		std::ifstream fileStream;
+		fileStream.open(HighScoreFile);
 
-		if( !highScoreFile.is_open() ) return {};
+		if( !fileStream.is_open() ) return {};
 
-		int lineNum = 2;
+		std::vector<uint32_t> highScores;
 
 		std::string line;
-		while( std::getline(highScoreFile, line) ) {
+		while( std::getline(fileStream, line) ) {
 
-			mvprintw(lineNum, 3, "%s", line.c_str());
-			lineNum++;
+			try {
+				highScores.push_back((uint32_t) stoll(line));
+			} catch( const std::invalid_argument ) {
+
+			}
+
 		}
 
-		highScoreFile.close();
+		fileStream.close();
 
-		return {};
+		//std::sort(highScores.begin(), highScores.end());
+		return highScores;
+	}
+
+	bool Game::WriteHighScoreToFile(const std::vector<uint32_t> highScores) {
+
+		std::ofstream fileStream;
+		fileStream.open(HighScoreFile, std::ofstream::out | std::ofstream::trunc);
+
+		if( !fileStream.is_open() ) return false;
+
+		//std::sort(highScores.begin(), highScores.end());
+
+		for( uint32_t score : highScores ) {
+			fileStream << score << std::endl;
+		}
+
+		fileStream.close();
+
+		return true;
+	}
+
+	void Game::PrintHighScore() {
+
+		ClearScreen();
+
+		int cols, rows;
+		getmaxyx(stdscr, rows, cols);
+
+		int colCenter = cols / 2;
+		int rowCenter = rows / 2;
+
+		int windowHeight = colCenter;
+		int windowWidth = rowCenter;
+
+		WINDOW *highScoreWin = newwin(windowWidth, windowHeight, rowCenter - (windowWidth / 2), colCenter - (windowHeight / 2));
+		box(highScoreWin, 0, 0);
+
+		refresh();
+		wrefresh(highScoreWin);
+
+		keypad(highScoreWin, true);
+
+		int8_t selectedItem = 0;
+
+		auto highScores = GetHighScoresFromFile();
+
+		while( true ) {
+
+			mvwprintw(highScoreWin, 2, colCenter / 2 - HighScoreHeader.size() / 2, "%s", HighScoreHeader.c_str());
+
+			for( int8_t i = 0, len = highScores.size(); i < len; i++ ) {
+				mvwprintw(highScoreWin, i + 4, 4, "%d.) %d", i + 1, highScores.at(i));
+			}
+
+			int menuInput = wgetch(highScoreWin);
+
+			switch( menuInput ) {
+
+				case KEY_UP:
+					selectedItem--;
+
+					if( selectedItem < 0 ) {
+						selectedItem = 0;
+					}
+
+					break;
+
+				case KEY_DOWN:
+					selectedItem++;
+
+					if( selectedItem >= MenuOptions.size() ) {
+						selectedItem = MenuOptions.size() - 1;
+					}
+
+					break;
+
+				case 10: // ENTER
+
+					delwin(highScoreWin);
+					return;
+					break;
+
+				case 'r':
+
+					delwin(highScoreWin);
+					return;
+					break;
+
+				case 'q':
+
+					delwin(highScoreWin);
+					return;
+					break;
+
+				default:
+					break;
+			}
+
+		}
+
 	}
 
 }

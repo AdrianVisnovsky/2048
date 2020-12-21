@@ -2,20 +2,18 @@
 
 #include "Classes/Game.h"
 
+#include <fstream>
+#include <iostream>
+
 void PlayGame(Game2048::Game *game);
-void ShowHighScore(Game2048::Game *game);
 
 int main(const int argc, const char ** argv) {
 
 	setlocale(LC_ALL, "");
 
-
 	Game2048::Game game;
-	auto test = game.GetHighScoresFromFile();
 
-	getch();
-
-	/*bool loop = true;
+	bool loop = true;
 	while( loop ) {
 
 		Game2048::MenuOption menuOption = game.Menu();
@@ -26,7 +24,7 @@ int main(const int argc, const char ** argv) {
 				PlayGame(&game);
 				break;
 			case Game2048::HIGH_SCORE:
-				ShowHighScore(&game);
+				game.PrintHighScore();
 				break;
 			case Game2048::QUIT:
 				loop = false;
@@ -35,7 +33,7 @@ int main(const int argc, const char ** argv) {
 				break;
 		}
 
-	}*/
+	}
 
 	return EXIT_SUCCESS;
 }
@@ -85,9 +83,5 @@ void PlayGame(Game2048::Game *game) {
 		}
 
 	}
-
-}
-
-void ShowHighScore(Game2048::Game *game) {
 
 }
