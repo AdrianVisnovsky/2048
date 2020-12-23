@@ -10,7 +10,9 @@ namespace Game2048 {
 
 	void PrintTile(const uint8_t row, const uint8_t col, const uint16_t value) {
 
-		attron(COLOR_PAIR(value));
+		int color = GetExponent(value);
+
+		attron(COLOR_PAIR(color));
 		mvprintw(row, col, "/--------\\");
 		mvprintw(row + 1, col, "|        |");
 
@@ -22,8 +24,19 @@ namespace Game2048 {
 
 		mvprintw(row + 3, col, "|        |");
 		mvprintw(row + 4, col, "\\--------/");
-		attroff(COLOR_PAIR(value));
+		attroff(COLOR_PAIR(color));
 
+	}
+
+	int GetExponent(int16_t value) {
+
+		int count = 0;
+		while( value > 1 ) {
+			value /= 2;
+			count++;
+		}
+
+		return count;
 	}
 
 	void ClearScreen() {
@@ -47,10 +60,10 @@ namespace Game2048 {
 
 		int colCenter = cols / 2;
 
-		attron(COLOR_PAIR(1));
+		attron(COLOR_PAIR(30));
 		mvprintw(rows - 3, colCenter - PlayerGuide.size() / 2, "%s", PlayerGuide.c_str());
 		mvprintw(rows - 2, colCenter - CopyrightInfo.size() / 2, "%s", CopyrightInfo.c_str());
-		attroff(COLOR_PAIR(1));
+		attroff(COLOR_PAIR(30));
 
 	}
 
@@ -83,9 +96,9 @@ namespace Game2048 {
 
 		while( true ) {
 
-			wattron(highScoreWin, COLOR_PAIR(1));
+			wattron(highScoreWin, COLOR_PAIR(30));
 			mvwprintw(highScoreWin, 2, colCenter / 2 - HighScoreHeader.size() / 2, "%s", HighScoreHeader.c_str());
-			wattroff(highScoreWin, COLOR_PAIR(1));
+			wattroff(highScoreWin, COLOR_PAIR(30));
 
 			for( int8_t i = 0, len = highScores.size(); i < len; i++ ) {
 				mvwprintw(highScoreWin, i + 4, (colCenter / 2) - 6, "%2d.) %7d", i + 1, highScores.at(i));
@@ -152,10 +165,10 @@ namespace Game2048 {
 		int rowStart = rowCenter - game->GetBoardSize() * 5 / 2;
 		int colStart = colCenter - game->GetBoardSize() * 10 / 2;
 
-		attron(COLOR_PAIR(1));
+		attron(COLOR_PAIR(30));
 		mvprintw(rowStart - 2, colStart, "Score: %d", game->GetScore());
 		mvprintw(rowStart - 2, colStart + (game->GetBoardSize() + 1) * 10, "%s", HighScoreHeader.c_str());
-		attroff(COLOR_PAIR(1));
+		attroff(COLOR_PAIR(30));
 
 		for( int8_t i = 0; i < game->GetBoardSize(); i++ ) {
 			for( int8_t j = 0; j < game->GetBoardSize(); j++ ) {
@@ -188,7 +201,7 @@ namespace Game2048 {
 
 		int rowToPrint = rowCenter - (int) GameName.size();
 
-		attron(COLOR_PAIR(1));
+		attron(COLOR_PAIR(30));
 		for( std::string line : GameName ) {
 
 			int colPos = colCenter - (line.size() / 2);
@@ -200,7 +213,7 @@ namespace Game2048 {
 			rowToPrint++;
 
 		}
-		attroff(COLOR_PAIR(1));
+		attroff(COLOR_PAIR(30));
 
 	}
 
@@ -373,21 +386,22 @@ namespace Game2048 {
 
 			start_color();
 
-			init_pair(1, COLOR_GREEN, COLOR_BLACK);
-			init_pair(2, COLOR_BLACK, COLOR_RED);
-			init_pair(4, COLOR_BLACK, COLOR_GREEN);
-			init_pair(8, COLOR_BLACK, COLOR_YELLOW);
-			init_pair(16, COLOR_BLACK, COLOR_BLUE);
-			init_pair(32, COLOR_BLACK, COLOR_MAGENTA);
-			init_pair(64, COLOR_BLACK, COLOR_CYAN);
-			init_pair(128, COLOR_BLACK, COLOR_WHITE);
-			init_pair(256, COLOR_RED, COLOR_BLACK);
-			init_pair(512, COLOR_RED, COLOR_GREEN);
-			init_pair(1024, COLOR_RED, COLOR_YELLOW);
-			init_pair(2048, COLOR_RED, COLOR_BLUE);
-			init_pair(4096, COLOR_RED, COLOR_MAGENTA);
-			init_pair(8192, COLOR_RED, COLOR_CYAN);
-			init_pair(16384, COLOR_RED, COLOR_WHITE);
+			init_pair(1, COLOR_BLACK, COLOR_RED);
+			init_pair(2, COLOR_BLACK, COLOR_GREEN);
+			init_pair(3, COLOR_BLACK, COLOR_YELLOW);
+			init_pair(4, COLOR_BLACK, COLOR_BLUE);
+			init_pair(5, COLOR_BLACK, COLOR_MAGENTA);
+			init_pair(6, COLOR_BLACK, COLOR_CYAN);
+			init_pair(7, COLOR_BLACK, COLOR_WHITE);
+			init_pair(8, COLOR_RED, COLOR_BLACK);
+			init_pair(9, COLOR_RED, COLOR_GREEN);
+			init_pair(10, COLOR_RED, COLOR_YELLOW);
+			init_pair(11, COLOR_RED, COLOR_BLUE);
+			init_pair(12, COLOR_RED, COLOR_MAGENTA);
+			init_pair(13, COLOR_RED, COLOR_CYAN);
+			init_pair(14, COLOR_RED, COLOR_WHITE);
+
+			init_pair(30, COLOR_GREEN, COLOR_BLACK);
 
 		}
 

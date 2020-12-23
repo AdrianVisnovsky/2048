@@ -66,6 +66,8 @@ namespace Game2048 {
 
 	void PrintGame(Game *game);
 
+	int GetExponent(int16_t value);
+
 	MenuOptionSizes BoardSizes();
 
 	MenuOption Menu();
