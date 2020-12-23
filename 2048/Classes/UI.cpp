@@ -79,8 +79,8 @@ namespace Game2048 {
 		int colCenter = cols / 2;
 		int rowCenter = rows / 2;
 
-		int windowHeight = colCenter;
-		int windowWidth = rowCenter;
+		int windowHeight = colCenter + colCenter / 2;
+		int windowWidth = rowCenter + rowCenter / 2;
 
 		WINDOW *highScoreWin = newwin(windowWidth, windowHeight, rowCenter - (windowWidth / 2), colCenter - (windowHeight / 2));
 		box(highScoreWin, ACS_BULLET, 0);
@@ -90,18 +90,28 @@ namespace Game2048 {
 
 		keypad(highScoreWin, true);
 
-		int8_t selectedItem = 0;
-
 		auto highScores = GetHighScoresFromFile();
+
+		int8_t selectedItem = 0;
 
 		while( true ) {
 
 			wattron(highScoreWin, COLOR_PAIR(30));
-			mvwprintw(highScoreWin, 2, colCenter / 2 - HighScoreHeader.size() / 2, "%s", HighScoreHeader.c_str());
+			mvwprintw(highScoreWin, 2, (windowHeight / 2) - HighScoreHeader.size() / 2, "%s", HighScoreHeader.c_str());
 			wattroff(highScoreWin, COLOR_PAIR(30));
 
 			for( int8_t i = 0, len = highScores.size(); i < len; i++ ) {
-				mvwprintw(highScoreWin, i + 4, (colCenter / 2) - 6, "%2d.) %7d", i + 1, highScores.at(i));
+				mvwprintw(highScoreWin, i + 4, (windowHeight / 2) - 6, "%2d.) %7d", i + 1, highScores.at(i));
+			}
+
+			int startingRow = highScores.size() + 6;
+
+			for( std::size_t i = 0, len = HighScoreMenuOptions.size(); i < len; i++ ) {
+
+				if( selectedItem == i ) wattron(highScoreWin, A_REVERSE);
+				mvwprintw(highScoreWin, startingRow + i, (windowHeight / 2) - HighScoreMenuOptions.at(i).size() / 2, "%s", HighScoreMenuOptions.at(i).c_str());
+				if( selectedItem == i ) wattroff(highScoreWin, A_REVERSE);
+
 			}
 
 			int menuInput = wgetch(highScoreWin);
@@ -120,19 +130,17 @@ namespace Game2048 {
 				case KEY_DOWN:
 					selectedItem++;
 
-					if( selectedItem >= MenuOptions.size() ) {
-						selectedItem = MenuOptions.size() - 1;
+					if( selectedItem >= HighScoreMenuOptions.size() ) {
+						selectedItem = HighScoreMenuOptions.size() - 1;
 					}
 
 					break;
 
 				case 10: // ENTER
 
-					delwin(highScoreWin);
-					return;
-					break;
-
-				case 'r':
+					if( selectedItem == 0 ) {
+						WriteHighScoreToFile({});
+					}
 
 					delwin(highScoreWin);
 					return;
@@ -163,7 +171,7 @@ namespace Game2048 {
 		int colCenter = cols / 2;
 
 		int rowStart = rowCenter - game->GetBoardSize() * 5 / 2;
-		int colStart = colCenter - game->GetBoardSize() * 10 / 2;
+		int colStart = colCenter - game->GetBoardSize() * 10 / 2 - 15;
 
 		attron(COLOR_PAIR(30));
 		mvprintw(rowStart - 2, colStart, "Score: %d", game->GetScore());

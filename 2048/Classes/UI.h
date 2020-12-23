@@ -21,7 +21,7 @@ namespace Game2048 {
 		BACK
 	};
 
-	const std::string PlayerGuide = "Guide: ↑, →, ↓, ←, q - quit, r, n - new game / restart game";
+	const std::string PlayerGuide = "Guide: ↑, →, ↓, ←, q - quit/back, r - restart game, n - new game";
 	const std::string CopyrightInfo = "Copyright (c) 2020 Adrián Kokuľa - adriankokula.eu; License: The MIT License (MIT)";
 	const std::string HighScoreHeader = "High score table";
 
@@ -35,6 +35,11 @@ namespace Game2048 {
 		"3x3",
 		"4x4",
 		"5x5"
+	};
+
+	const std::vector<std::string> HighScoreMenuOptions {
+		"Clear high score table",
+		"Back"
 	};
 
 	const std::vector<std::string> GameName {
