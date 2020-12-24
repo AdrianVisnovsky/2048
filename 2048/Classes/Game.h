@@ -36,18 +36,34 @@ namespace Game2048 {
 		/// <param name="direction"></param>
 		void MoveBoard(const Direction direction);
 
+		/// <summary>
+		/// Set all tiles in Board to 0
+		/// </summary>
 		void ClearBoard();
 
-		bool IsMovePossible() const;
-		bool IsMovePossible(const Direction direction) const;
+		/// <summary>
+		/// Clears board and adds 2 random tiles
+		/// </summary>
+		void StartGame();
 
-		bool IsGameWon() const;
+		/// <summary>
+		/// Is possible to move board
+		/// </summary>
+		/// <returns></returns>
+		bool IsMovePossible() const;
+
+		/// <summary>
+		/// Is possible to move board with given direction?
+		/// </summary>
+		/// <param name="direction"></param>
+		/// <returns></returns>
+		bool IsMovePossible(const Direction direction) const;
 		
 		uint32_t GetScore() const;
 
 		int8_t GetBoardSize() const;
 		
-		std::vector<std::vector<uint16_t>> GetBoard();
+		std::vector<std::vector<uint16_t> > GetBoard();
 
 	private:
 
@@ -56,8 +72,6 @@ namespace Game2048 {
 
 		// Player score
 		uint32_t Score = 0;
-
-		const uint16_t MaxValueTile = 16384;
 
 		// Game board
 		std::vector<std::vector<uint16_t>> Board;
@@ -70,5 +84,5 @@ namespace Game2048 {
 			
 	};
 
-};
+}
 

@@ -14,13 +14,6 @@ namespace Game2048 {
 		NEW_GAME, HIGH_SCORE, QUIT
 	};
 
-	enum MenuOptionSizes {
-		SMALL = 3, // 3x3
-		MEDIUM, // 4x4
-		BIG, // 5x5
-		BACK
-	};
-
 	const std::string PlayerGuide = "Guide: ↑, →, ↓, ←, q - quit/back, r - restart game, n - new game";
 	const std::string CopyrightInfo = "Copyright (c) 2020 Adrián Kokuľa - adriankokula.eu; License: The MIT License (MIT)";
 	const std::string HighScoreHeader = "High score table";
@@ -59,28 +52,71 @@ namespace Game2048 {
 		"88888888888    \"Y888P\"            88    \"Y88888P\""
 	};
 
+	/// <summary>
+	/// Init ncurses library
+	/// </summary>
 	void UIInit();
 
+	/// <summary>
+	/// DeInit ncurses library
+	/// </summary>
 	void UIDeInit();
 
+	/// <summary>
+	/// Init all used colors if 
+	/// </summary>
 	void InitColors();
 
+	/// <summary>
+	/// Game loop
+	/// </summary>
+	void PlayGame();
+
+	/// <summary>
+	/// Prints game logo to stdscr
+	/// </summary>
 	void PrintLogo();
 
+	/// <summary>
+	/// Clears stdscr, adds border and guide with copyright info
+	/// </summary>
 	void ClearScreen();
 
-	void PrintTile(const uint8_t row, const uint8_t col, const uint16_t value);
+	/// <summary>
+	/// Prints actuall state of game and high score table
+	/// </summary>
+	void PrintGame(WINDOW *gameWindow, WINDOW *highScoreWindow, Game *game, std::vector<uint32_t> *highScores);
 
+	/// <summary>
+	/// Print given tile to specific window
+	/// </summary>
+	void PrintTile(WINDOW *gameWindow, const uint8_t row, const uint8_t col, const uint16_t value);
+
+	/// <summary>
+	/// Prints table of high score
+	/// </summary>
 	void PrintHighScore();
 
-	void PrintGame(WINDOW *gameWindow, WINDOW *highScoreWindow, Game *game);
-
+	/// <summary>
+	/// Prints game over label to stdscr
+	/// </summary>
 	void PrintGameOver();
 
+	/// <summary>
+	/// Get exponent of given number
+	/// </summary>
+	/// <param name="value"></param>
+	/// <returns></returns>
 	int GetExponent(int16_t value);
 
-	MenuOptionSizes BoardSizes();
+	/// <summary>
+	/// Prints predefined board sizes, keeps user choose board size 
+	/// </summary>
+	int8_t BoardSizes();
 
+	/// <summary>
+	/// Prints menu to user with ability to select next action
+	/// </summary>
 	MenuOption Menu();
 
 }

@@ -32,17 +32,15 @@ namespace Game2048 {
 			col = rand() % BoardSize;
 		}
 
-		if( rand() % 2 == 0 ) {
-			Board[row][col] = 2;
-		} else {
-			Board[row][col] = 4;
-		}
+		Board[row][col] = rand() % 2 == 0 ? 2 : 4;
 
 	}
 
 	void Game::MoveBoard(const Direction direction) {
 
 		switch( direction ) {
+
+			// merge tiles
 			case Game2048::UP:
 			case Game2048::DOWN:
 
@@ -69,6 +67,7 @@ namespace Game2048 {
 					}
 				}
 
+				// move them up
 				if( direction == Game2048::UP ) {
 
 					for( int8_t col = 0; col < BoardSize; col++ ) {
@@ -89,7 +88,7 @@ namespace Game2048 {
 						}
 					}
 
-				} else {
+				} else { // move them down
 
 					for( int8_t col = 0; col < BoardSize; col++ ) {
 						for( int8_t row = BoardSize - 1; row >= 0; row-- ) {
@@ -112,6 +111,8 @@ namespace Game2048 {
 				}
 
 				break;
+
+			// merge tiles
 			case Game2048::RIGHT:
 			case Game2048::LEFT:
 
@@ -138,6 +139,7 @@ namespace Game2048 {
 					}
 				}
 
+				// move them right
 				if( direction == Game2048::RIGHT ) {
 
 					for( int8_t row = 0; row < BoardSize; row++ ) {
@@ -158,7 +160,7 @@ namespace Game2048 {
 						}
 					}
 
-				} else {
+				} else { // move them left
 
 					for( int8_t row = 0; row < BoardSize; row++ ) {
 						for( int8_t col = 0; col < BoardSize; col++ ) {
@@ -189,18 +191,18 @@ namespace Game2048 {
 
 	bool Game::IsMovePossible() const {
 
-		for( int8_t i = 0; i < BoardSize; i++ ) {
-			for( int8_t j = 0; j < BoardSize; j++ ) {
+		for( int8_t row = 0; row < BoardSize; row++ ) {
+			for( int8_t col = 0; col < BoardSize; col++ ) {
 
-				uint16_t value = Board[i][j];
+				uint16_t value = Board[row][col];
 
 				if( value == 0 ) return true;
 
-				if( i > 0 && Board[i - 1][j] == value ) return true;
-				if( i < BoardSize - 1 && Board[i + 1][j] == value ) return true;
+				if( row > 0 && Board[row - 1][col] == value ) return true; // check current tile with tile above
+				if( row < BoardSize - 1 && Board[row + 1][col] == value ) return true; // check current tile with tile under
 
-				if( j > 0 && Board[i][j - 1] == value ) return true;
-				if( j < BoardSize - 1 && Board[i][j + 1] == value ) return true;
+				if( col > 0 && Board[row][col - 1] == value ) return true; // check current tile with tile on the left
+				if( col < BoardSize - 1 && Board[row][col + 1] == value ) return true; // check current tile with on the right
 
 			}
 		}
@@ -278,9 +280,9 @@ namespace Game2048 {
 
 	bool Game::IsPossibleToAddTile() const {
 
-		for( int8_t i = 0; i < BoardSize; i++ ) {
-			for( int8_t j = 0; j < BoardSize; j++ ) {
-				if( Board[i][j] == 0 ) return true;
+		for( int8_t row = 0; row < BoardSize; row++ ) {
+			for( int8_t col = 0; col < BoardSize; col++ ) {
+				if( Board[row][col] == 0 ) return true;
 			}
 		}
 
@@ -289,20 +291,9 @@ namespace Game2048 {
 
 	bool Game::IsRowSuitable(const int8_t rowIndex) const {
 
-		for( int8_t i = 0; i < BoardSize; i++ ) {
-			if( Board[rowIndex][i] == 0 ) {
+		for( int8_t col = 0; col < BoardSize; col++ ) {
+			if( Board[rowIndex][col] == 0 ) {
 				return true;
-			}
-		}
-
-		return false;
-	}
-
-	bool Game::IsGameWon() const {
-
-		for( int8_t i = 0; i < BoardSize; i++ ) {
-			for( int8_t j = 0; j < BoardSize; j++ ) {
-				if( Board[i][j] == MaxValueTile ) return true;
 			}
 		}
 
@@ -311,13 +302,21 @@ namespace Game2048 {
 
 	void Game::ClearBoard() {
 
-		for( int8_t i = 0; i < BoardSize; i++ ) {
-			for( int8_t j = 0; j < BoardSize; j++ ) {
-				Board[i][j] = 0;
+		for( int8_t row = 0; row < BoardSize; row++ ) {
+			for( int8_t col = 0; col < BoardSize; col++ ) {
+				Board[row][col] = 0;
 			}
 		}
 
 		Score = 0;
+	}
+
+	void Game::StartGame() {
+
+		ClearBoard();
+		AddRandomTile();
+		AddRandomTile();
+
 	}
 
 	uint32_t Game::GetScore() const {

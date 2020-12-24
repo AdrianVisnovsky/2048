@@ -8,6 +8,179 @@
 
 namespace Game2048 {
 
+	void UIInit() {
+
+		initscr();
+		keypad(stdscr, true);
+		cbreak();
+		noecho();
+
+		InitColors();
+	}
+
+	void UIDeInit() {
+		endwin();
+	}
+
+	void InitColors() {
+
+		if( has_colors() ) {
+
+			start_color();
+
+			init_pair(1, COLOR_BLACK, COLOR_RED);
+			init_pair(2, COLOR_BLACK, COLOR_GREEN);
+			init_pair(3, COLOR_BLACK, COLOR_YELLOW);
+			init_pair(4, COLOR_BLACK, COLOR_BLUE);
+			init_pair(5, COLOR_BLACK, COLOR_MAGENTA);
+			init_pair(6, COLOR_BLACK, COLOR_CYAN);
+			init_pair(7, COLOR_BLACK, COLOR_WHITE);
+			init_pair(8, COLOR_RED, COLOR_BLACK);
+			init_pair(9, COLOR_RED, COLOR_GREEN);
+			init_pair(10, COLOR_RED, COLOR_YELLOW);
+			init_pair(11, COLOR_RED, COLOR_BLUE);
+			init_pair(12, COLOR_RED, COLOR_MAGENTA);
+			init_pair(13, COLOR_RED, COLOR_CYAN);
+			init_pair(14, COLOR_RED, COLOR_WHITE);
+
+			init_pair(30, COLOR_GREEN, COLOR_BLACK);
+
+		}
+
+	}
+
+	void PlayGame() {
+
+		int8_t boardSize = Game2048::BoardSizes();
+		if( boardSize <= 0 ) return;
+
+		Game2048::ClearScreen();
+
+		int rows, cols;
+		getmaxyx(stdscr, rows, cols);
+
+		rows -= 2;
+
+		int rowCenter = rows / 2;
+		int colCenter = cols / 2;
+
+		int windowHeight = Game2048::TileHeight * (boardSize + 1);
+		int windowWidth = Game2048::TileWidth * boardSize + 6;
+
+		int rowStart = rowCenter - windowHeight / 2;
+		int colStart = colCenter - boardSize * 10 / 2 - 15;
+
+		// create window for tiles
+		WINDOW *gameWindow = newwin(windowHeight, windowWidth, rowStart, colStart);
+		box(gameWindow, ACS_BULLET, ACS_BULLET);
+
+		// create high score window
+		WINDOW *highScoreWindow = newwin(windowHeight, 22, rowStart, colStart + windowWidth + 5);
+		box(highScoreWindow, ACS_VLINE, ACS_HLINE);
+
+		refresh();
+		wrefresh(gameWindow);
+		wrefresh(highScoreWindow);
+
+		std::vector<uint32_t> highScores = Game2048::GetHighScoresFromFile();
+
+		// create game class
+		Game2048::Game game(boardSize);
+		game.StartGame();
+
+		Game2048::PrintGame(gameWindow, highScoreWindow, &game, &highScores);
+
+		bool loop = true;
+
+		// game loop
+		while( loop ) {
+
+			int input = getch();
+
+			switch( input ) {
+				case Game2048::UP:
+				case Game2048::RIGHT:
+				case Game2048::DOWN:
+				case Game2048::LEFT:
+
+					if( game.IsMovePossible(static_cast<Game2048::Direction>(input)) ) {
+
+						game.MoveBoard(static_cast<Game2048::Direction>(input));
+						game.AddRandomTile();
+
+						loop = game.IsMovePossible();
+
+						Game2048::PrintGame(gameWindow, highScoreWindow, &game, &highScores);
+
+						if( !loop ) {
+							Game2048::PrintGameOver();
+							input = getch();
+
+							if( input == 'r' ) {
+
+								loop = true;
+
+								if( game.GetScore() > 0 ) {
+									highScores.push_back(game.GetScore());
+								}
+
+								Game2048::WriteHighScoreToFile(highScores);
+								wclear(gameWindow);
+								wclear(highScoreWindow);
+								box(gameWindow, ACS_BULLET, ACS_BULLET);
+								box(highScoreWindow, ACS_VLINE, ACS_HLINE);
+
+								// restarts game
+								game.StartGame();
+
+								Game2048::PrintGame(gameWindow, highScoreWindow, &game, &highScores);
+
+							}
+
+						}
+
+					}
+
+					break;
+
+				case 'q':
+					loop = false;
+					break;
+
+				case 'r':
+
+					if( game.GetScore() > 0 ) {
+						highScores.push_back(game.GetScore());
+					}
+
+					Game2048::WriteHighScoreToFile(highScores);
+					wclear(gameWindow);
+					wclear(highScoreWindow);
+					box(gameWindow, ACS_BULLET, ACS_BULLET);
+					box(highScoreWindow, ACS_VLINE, ACS_HLINE);
+
+					// restarts game
+					game.StartGame();
+
+					Game2048::PrintGame(gameWindow, highScoreWindow, &game, &highScores);
+
+					break;
+
+			}
+
+		}
+
+		if( game.GetScore() > 0 ) {
+			highScores.push_back(game.GetScore());
+		}
+
+		Game2048::WriteHighScoreToFile(highScores);
+
+		delwin(gameWindow);
+		delwin(highScoreWindow);
+
+	}
+
 	void PrintTile(WINDOW* gameWindow, const uint8_t row, const uint8_t col, const uint16_t value) {
 
 		int color = GetExponent(value);
@@ -30,9 +203,7 @@ namespace Game2048 {
 
 	void PrintGameOver() {
 
-		int cols, rows;
-		getmaxyx(stdscr, rows, cols);
-
+		int cols = getmaxx(stdscr);
 		int colCenter = cols / 2;
 
 		attron(COLOR_PAIR(1));
@@ -109,6 +280,7 @@ namespace Game2048 {
 
 		while( true ) {
 
+			// print high score
 			wattron(highScoreWin, COLOR_PAIR(30));
 			mvwprintw(highScoreWin, 2, (windowHeight / 2) - HighScoreHeader.size() / 2, "%s", HighScoreHeader.c_str());
 			wattroff(highScoreWin, COLOR_PAIR(30));
@@ -119,9 +291,10 @@ namespace Game2048 {
 
 			int startingRow = highScores.size() + 6;
 
+			// print choosable items
 			for( std::size_t i = 0, len = HighScoreMenuOptions.size(); i < len; i++ ) {
 
-				if( selectedItem == i ) wattron(highScoreWin, A_REVERSE);
+				if( selectedItem == i ) wattron(highScoreWin, A_REVERSE); // higlight selected item
 				mvwprintw(highScoreWin, startingRow + i, (windowHeight / 2) - HighScoreMenuOptions.at(i).size() / 2, "%s", HighScoreMenuOptions.at(i).c_str());
 				if( selectedItem == i ) wattroff(highScoreWin, A_REVERSE);
 
@@ -157,13 +330,11 @@ namespace Game2048 {
 
 					delwin(highScoreWin);
 					return;
-					break;
 
 				case 'q':
 
 					delwin(highScoreWin);
 					return;
-					break;
 
 				default:
 					break;
@@ -173,21 +344,20 @@ namespace Game2048 {
 
 	}
 
-	void PrintGame(WINDOW *gameWindow, WINDOW *highScoreWindow, Game *game) {
+	void PrintGame(WINDOW *gameWindow, WINDOW *highScoreWindow, Game *game, std::vector<uint32_t> *highScores) {
 
 		int rowStart = 3;
 		int colStart = 3;
 
 		wattron(gameWindow, COLOR_PAIR(30));
-		wattron(highScoreWindow, COLOR_PAIR(30));
 		mvwprintw(gameWindow, rowStart - 1, colStart, "Score: %d", game->GetScore());
-		mvwprintw(highScoreWindow, rowStart - 1, colStart, "%s", HighScoreHeader.c_str());
 		wattroff(gameWindow, COLOR_PAIR(30));
-		wattroff(highScoreWindow, COLOR_PAIR(30));
 
+		// print every tile of board
 		for( int8_t i = 0; i < game->GetBoardSize(); i++ ) {
 			for( int8_t j = 0; j < game->GetBoardSize(); j++ ) {
 
+				// calculate position of tile
 				uint8_t row = rowStart + i * 5;
 				uint8_t col = colStart + j * 10;
 
@@ -196,9 +366,17 @@ namespace Game2048 {
 			}	
 		}
 
-		auto highScores = Game2048::GetHighScoresFromFile();
-		for( std::size_t i = 0, len = highScores.size(); i < len && i < 10; i++ ) {
-			mvwprintw(highScoreWindow, rowStart, colStart, "%2d.) %7d", i + 1, highScores.at(i));
+		wattron(highScoreWindow, COLOR_PAIR(30));
+		mvwprintw(highScoreWindow, rowStart - 1, colStart, "%s", HighScoreHeader.c_str());
+		wattroff(highScoreWindow, COLOR_PAIR(30));
+
+
+		// sort high score just in case
+		std::sort(highScores->begin(), highScores->end(), std::greater<>());
+
+		// print high score
+		for( std::size_t i = 0, len = highScores->size(); i < len && i < 10; i++ ) {
+			mvwprintw(highScoreWindow, rowStart, colStart, "%2d.) %7d", i + 1, highScores->at(i));
 			rowStart++;
 		}
 
@@ -235,15 +413,12 @@ namespace Game2048 {
 
 	}
 
-	MenuOptionSizes BoardSizes() {
+	int8_t BoardSizes() {
 
 		int cols, rows;
 		getmaxyx(stdscr, rows, cols);
 
 		rows -= 2;
-
-		int colCenter = cols / 2;
-		int rowCenter = rows / 2;
 
 		WINDOW *menuWin = newwin(7, cols - 19, rows - 12, 9);
 		box(menuWin, ACS_BULLET, 0);
@@ -255,11 +430,12 @@ namespace Game2048 {
 
 		int8_t selectedItem = 0;
 
+		// printing board sizes
 		while( true ) {
 
 			for( int8_t i = 0, len = SizeOptions.size(); i < len; i++ ) {
 
-				if( i == selectedItem ) wattron(menuWin, A_REVERSE);
+				if( i == selectedItem ) wattron(menuWin, A_REVERSE); // higliht selected item
 				mvwprintw(menuWin, i + 2, 4, "%s", SizeOptions.at(i).c_str());
 				if( i == selectedItem ) wattroff(menuWin, A_REVERSE);
 
@@ -290,14 +466,12 @@ namespace Game2048 {
 				case 10: // ENTER
 
 					delwin(menuWin);
-					return (MenuOptionSizes) (selectedItem + 3);
-					break;
+					return selectedItem + 3;
 
 				case 'q':
 
 					delwin(menuWin);
-					return BACK;
-					break;
+					return 0;
 
 				default:
 					break;
@@ -317,9 +491,6 @@ namespace Game2048 {
 
 		rows -= 2;
 
-		int colCenter = cols / 2;
-		int rowCenter = rows / 2;
-
 		WINDOW *menuWin = newwin(7, cols - 19, rows - 12, 9);
 		box(menuWin, ACS_BULLET, 0);
 
@@ -330,11 +501,12 @@ namespace Game2048 {
 
 		int8_t selectedItem = 0;
 
+		// printing menu items
 		while( true ) {
 
 			for( int8_t i = 0, len = MenuOptions.size(); i < len; i++ ) {
 
-				if( i == selectedItem ) wattron(menuWin, A_REVERSE);
+				if( i == selectedItem ) wattron(menuWin, A_REVERSE); // highlight selected item
 				mvwprintw(menuWin, i + 2, 4, "%s", MenuOptions.at(i).c_str());
 				if( i == selectedItem ) wattroff(menuWin, A_REVERSE);
 
@@ -342,6 +514,7 @@ namespace Game2048 {
 
 			int menuInput = wgetch(menuWin);
 
+			// handling user input in menu
 			switch( menuInput ) {
 
 				case KEY_UP:
@@ -366,19 +539,16 @@ namespace Game2048 {
 
 					delwin(menuWin);
 					return (MenuOption) selectedItem;
-					break;
 
 				case 'n':
 
 					delwin(menuWin);
 					return NEW_GAME;
-					break;
 
 				case 'q':
 
 					delwin(menuWin);
 					return QUIT;
-					break;
 
 				default:
 					break;
@@ -388,45 +558,5 @@ namespace Game2048 {
 
 	}
 
-	void UIInit() {
-
-		initscr();
-		keypad(stdscr, true);
-		cbreak();
-		noecho();
-
-		InitColors();
-	}
-
-	void InitColors() {
-
-		if( has_colors() ) {
-
-			start_color();
-
-			init_pair(1, COLOR_BLACK, COLOR_RED);
-			init_pair(2, COLOR_BLACK, COLOR_GREEN);
-			init_pair(3, COLOR_BLACK, COLOR_YELLOW);
-			init_pair(4, COLOR_BLACK, COLOR_BLUE);
-			init_pair(5, COLOR_BLACK, COLOR_MAGENTA);
-			init_pair(6, COLOR_BLACK, COLOR_CYAN);
-			init_pair(7, COLOR_BLACK, COLOR_WHITE);
-			init_pair(8, COLOR_RED, COLOR_BLACK);
-			init_pair(9, COLOR_RED, COLOR_GREEN);
-			init_pair(10, COLOR_RED, COLOR_YELLOW);
-			init_pair(11, COLOR_RED, COLOR_BLUE);
-			init_pair(12, COLOR_RED, COLOR_MAGENTA);
-			init_pair(13, COLOR_RED, COLOR_CYAN);
-			init_pair(14, COLOR_RED, COLOR_WHITE);
-
-			init_pair(30, COLOR_GREEN, COLOR_BLACK);
-
-		}
-
-	}
-
-	void UIDeInit() {
-		endwin();
-	}
 
 }
