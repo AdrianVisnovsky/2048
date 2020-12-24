@@ -9,7 +9,7 @@ This is my implementation of 2048 in C++ with ncurses library. UI is adapting to
   - 5x5 board - big
 - high score table - save your biggest score
 
-## Screenshot
+## Screenshots
 ### Game menu:
 ![2048 game screenshot - menu](https://raw.githubusercontent.com/AdrianKokula/2048/main/images/menu.png)
 
