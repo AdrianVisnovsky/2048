@@ -24,6 +24,10 @@ namespace Game2048 {
 	const std::string PlayerGuide = "Guide: ↑, →, ↓, ←, q - quit/back, r - restart game, n - new game";
 	const std::string CopyrightInfo = "Copyright (c) 2020 Adrián Kokuľa - adriankokula.eu; License: The MIT License (MIT)";
 	const std::string HighScoreHeader = "High score table";
+	const std::string GameOver = "Game over. No other move is possible!";
+
+	const uint8_t TileWidth = 10;
+	const uint8_t TileHeight = 5;
 
 	const std::vector<std::string> MenuOptions {
 		"New game",
@@ -69,7 +73,9 @@ namespace Game2048 {
 
 	void PrintHighScore();
 
-	void PrintGame(Game *game);
+	void PrintGame(WINDOW *gameWindow, WINDOW *highScoreWindow, Game *game);
+
+	void PrintGameOver();
 
 	int GetExponent(int16_t value);
 

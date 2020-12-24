@@ -8,23 +8,36 @@
 
 namespace Game2048 {
 
-	void PrintTile(const uint8_t row, const uint8_t col, const uint16_t value) {
+	void PrintTile(WINDOW* gameWindow, const uint8_t row, const uint8_t col, const uint16_t value) {
 
 		int color = GetExponent(value);
 
-		attron(COLOR_PAIR(color));
-		mvprintw(row, col, "/--------\\");
-		mvprintw(row + 1, col, "|        |");
+		wattron(gameWindow, COLOR_PAIR(color));
+		mvwprintw(gameWindow, row, col, "/--------\\");
+		mvwprintw(gameWindow, row + 1, col, "|        |");
 
 		if( value > 0 ) {
-			mvprintw(row + 2, col, "| %5d  |", value);
+			mvwprintw(gameWindow, row + 2, col, "| %5d  |", value);
 		} else {
-			mvprintw(row + 2, col, "|        |", value);
+			mvwprintw(gameWindow, row + 2, col, "|        |", value);
 		}
 
-		mvprintw(row + 3, col, "|        |");
-		mvprintw(row + 4, col, "\\--------/");
-		attroff(COLOR_PAIR(color));
+		mvwprintw(gameWindow, row + 3, col, "|        |");
+		mvwprintw(gameWindow, row + 4, col, "\\--------/");
+		wattroff(gameWindow, COLOR_PAIR(color));
+
+	}
+
+	void PrintGameOver() {
+
+		int cols, rows;
+		getmaxyx(stdscr, rows, cols);
+
+		int colCenter = cols / 2;
+
+		attron(COLOR_PAIR(1));
+		mvprintw(2, colCenter - GameOver.size() / 2, "%s", GameOver.c_str());
+		attroff(COLOR_PAIR(1));
 
 	}
 
@@ -160,23 +173,17 @@ namespace Game2048 {
 
 	}
 
-	void PrintGame(Game *game) {
+	void PrintGame(WINDOW *gameWindow, WINDOW *highScoreWindow, Game *game) {
 
-		int rows, cols;
-		getmaxyx(stdscr, rows, cols);
+		int rowStart = 3;
+		int colStart = 3;
 
-		rows -= 2;
-
-		int rowCenter = rows / 2;
-		int colCenter = cols / 2;
-
-		int rowStart = rowCenter - game->GetBoardSize() * 5 / 2;
-		int colStart = colCenter - game->GetBoardSize() * 10 / 2 - 15;
-
-		attron(COLOR_PAIR(30));
-		mvprintw(rowStart - 2, colStart, "Score: %d", game->GetScore());
-		mvprintw(rowStart - 2, colStart + (game->GetBoardSize() + 1) * 10, "%s", HighScoreHeader.c_str());
-		attroff(COLOR_PAIR(30));
+		wattron(gameWindow, COLOR_PAIR(30));
+		wattron(highScoreWindow, COLOR_PAIR(30));
+		mvwprintw(gameWindow, rowStart - 1, colStart, "Score: %d", game->GetScore());
+		mvwprintw(highScoreWindow, rowStart - 1, colStart, "%s", HighScoreHeader.c_str());
+		wattroff(gameWindow, COLOR_PAIR(30));
+		wattroff(highScoreWindow, COLOR_PAIR(30));
 
 		for( int8_t i = 0; i < game->GetBoardSize(); i++ ) {
 			for( int8_t j = 0; j < game->GetBoardSize(); j++ ) {
@@ -184,16 +191,19 @@ namespace Game2048 {
 				uint8_t row = rowStart + i * 5;
 				uint8_t col = colStart + j * 10;
 
-				Game2048::PrintTile(row, col, game->GetBoard()[i][j]);
+				Game2048::PrintTile(gameWindow, row, col, game->GetBoard()[i][j]);
 
 			}	
 		}
 
 		auto highScores = Game2048::GetHighScoresFromFile();
 		for( std::size_t i = 0, len = highScores.size(); i < len && i < 10; i++ ) {
-			mvprintw(rowStart, colStart + (game->GetBoardSize() + 1) * 10, "%2d.) %7d", i + 1, highScores.at(i));
+			mvwprintw(highScoreWindow, rowStart, colStart, "%2d.) %7d", i + 1, highScores.at(i));
 			rowStart++;
 		}
+
+		wrefresh(gameWindow);
+		wrefresh(highScoreWindow);
 
 	}
 

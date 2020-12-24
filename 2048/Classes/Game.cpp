@@ -208,6 +208,74 @@ namespace Game2048 {
 		return false;
 	}
 
+	bool Game::IsMovePossible(const Direction direction) const {
+
+		switch( direction ) {
+
+			case Direction::UP:
+
+				for( int8_t row = BoardSize - 1; row > 0; row-- ) {
+					for( int8_t col = 0; col < BoardSize; col++ ) {
+
+						if( Board[row][col] > 0 ) {
+							 if( Board[row - 1][col] == 0 || Board[row][col] == Board[row - 1][col] ) return true;
+						}
+
+					}
+				}
+
+				break;
+
+			case Direction::RIGHT:
+
+				for( int8_t col = 0; col < BoardSize - 1; col++ ) {
+					for( int8_t row = 0; row < BoardSize; row++ ) {
+
+						if( Board[row][col] > 0 ) {
+							if( Board[row][col + 1] == 0 || Board[row][col] == Board[row][col + 1] ) return true;
+						}
+
+					}
+				}
+
+				break;
+
+			case Direction::DOWN:
+
+				for( int8_t row = 0; row < BoardSize - 1; row++ ) {
+					for( int8_t col = 0; col < BoardSize; col++ ) {
+
+						if( Board[row][col] > 0 ) {
+							if( Board[row + 1][col] == 0 || Board[row][col] == Board[row + 1][col] ) return true;
+						}
+
+					}
+				}
+
+				break;
+
+			case Direction::LEFT:
+
+				for( int8_t col = BoardSize - 1; col > 0; col-- ) {
+					for( int8_t row = 0; row < BoardSize; row++ ) {
+
+						if( Board[row][col] > 0 ) {
+							if( Board[row][col - 1] == 0 || Board[row][col] == Board[row][col - 1] ) return true;
+						}
+
+					}
+				}
+
+				break;
+
+			default:
+				break;
+
+		}
+
+		return false;
+	}
+
 	bool Game::IsPossibleToAddTile() const {
 
 		for( int8_t i = 0; i < BoardSize; i++ ) {

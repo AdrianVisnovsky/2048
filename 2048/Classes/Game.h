@@ -39,6 +39,7 @@ namespace Game2048 {
 		void ClearBoard();
 
 		bool IsMovePossible() const;
+		bool IsMovePossible(const Direction direction) const;
 
 		bool IsGameWon() const;
 		
