@@ -23,6 +23,8 @@ This is my implementation of 2048 in C++ with ncurses library. UI is adapting to
 
 ## Compilation
 ```
+git clone https://github.com/AdrianKokula/2048.git
+cd 2048
 mkdir build && cd build
 cmake ..
 make
