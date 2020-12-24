@@ -10,9 +10,12 @@ This is my implementation of 2048 in C++ with ncurses library. UI is adapting to
 - high score table - save your biggest score
 
 ## Screenshot
-[2048 game screenshot - menu](/images/menu.png)
-
-[2048 game screenshot - gameplay](/images/gameplay.png)
+<p align="center">
+  
+  <img src="https://raw.githubusercontent.com/AdrianKokula/2048/main/images/menu.png", alt="2048 game screenshot - menu" />
+  <img src="https://raw.githubusercontent.com/AdrianKokula/2048/main/images/gameplay.png", alt="2048 game screenshot - gameplay" />
+  
+</p>
 
 ## Requirements
 - `ncursesw library v6.2`
